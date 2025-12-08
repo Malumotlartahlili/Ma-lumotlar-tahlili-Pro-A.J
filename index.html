@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ma'lumotTahlili Pro 3.0</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- CSS -->
+<link rel="stylesheet" href="style.css">
+
+<!-- Kutubxonalar -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+</head>
+<body>
+
+<section class="top">
+<h1>Ma'lumotTahlili Pro 3.0</h1>
+<p class="subtitle">Interaktiv regressiya tahlili</p>
+<button id="toggle-theme">🌙 Dark/Light</button>
+</section>
+
+<main class="container">
+<section class="panel left">
+<div class="controls">
+<label>Natija (Y) ustun nomi: <input id="y-name" value="Y"></label>
+<button id="add-x">+ Omil qo'shish (X)</button>
+<button id="add-row">+ Qator qo'shish</button>
+<button id="calc">Hisoblash</button>
+<button id="export-csv">CSV yuklab olish</button>
+</div>
+
+<div class="table-wrap">
+<table id="data-table">
+<thead id="thead"></thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="predict">
+<h3>Prognoz</h3>
+<div id="predict-inputs"></div>
+<button id="predict-btn">Y ni prognoz qil</button>
+<div id="predict-output" class="muted"></div>
+</div>
+</section>
+
+<section class="panel right">
+<div class="results">
+<h2>Natijalar</h2>
+<pre id="equation" class="code"></pre>
+<div id="stats" class="muted"></div>
+<div id="coef-table" class="code"></div>
+</div>
+
+<div id="charts">
+<h3>Grafiklar</h3>
+<div id="scatter-plot" class="chart"></div>
+<div id="residual-plot" class="chart"></div>
+</div>
+</section>
+</main>
+
+<footer class="footer">
+<span>© Ma'lumotTahlili Pro 2025</span>
+</footer>
+
+<!-- JS -->
+<script src="script.js"></script>
+</body>
+</html>
