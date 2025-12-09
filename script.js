@@ -93,7 +93,6 @@ function rSquared(y,yhat){
 }
 
 function adjustedRSquared(r2,n,p){
-    // n = obs, p = number of predictors
     return 1 - (1 - r2) * (n - 1) / (n - p - 1);
 }
 
@@ -119,6 +118,33 @@ function renderResiduals(yhat,residuals){
     Plotly.react('residual-plot',[trace],{margin:{t:10},xaxis:{title:'Fitted Y'},yaxis:{title:'Residuals'}});
 }
 
+function renderExcelPlots(X,yhat,residuals){
+    const container=document.getElementById('charts');
+
+    // Remove old Excel-style plots except main scatter and residual
+    Array.from(container.querySelectorAll('.excel-chart')).forEach(c=>c.remove());
+
+    X[0].forEach((_, j)=>{
+        // Fitted plot
+        const divFit=document.createElement('div');
+        divFit.className='chart excel-chart';
+        container.appendChild(divFit);
+
+        const traceFit={x:X.map(r=>r[j]), y:yhat, mode:'markers', type:'scatter', marker:{color:'rgba(52,211,153,0.7)', size:7}, name:`Fitted X${j+1}`};
+        const layoutFit={title:`X${j+1} – Fitted vs Y`, margin:{t:40}};
+        Plotly.newPlot(divFit,[traceFit],layoutFit,{responsive:true});
+
+        // Residual plot
+        const divRes=document.createElement('div');
+        divRes.className='chart excel-chart';
+        container.appendChild(divRes);
+
+        const traceRes={x:X.map(r=>r[j]), y:residuals, mode:'markers', type:'scatter', marker:{color:'rgba(248,113,113,0.7)', size:7}, name:`Residuals X${j+1}`};
+        const layoutRes={title:`X${j+1} – Residuals`, margin:{t:40}};
+        Plotly.newPlot(divRes,[traceRes],layoutRes,{responsive:true});
+    });
+}
+
 // ---------- Compute ----------
 function computeAndRender(){
     try{
@@ -142,6 +168,7 @@ function computeAndRender(){
 
         renderScatter(y,yhat);
         renderResiduals(yhat,y.map((v,i)=>v-yhat[i]));
+        renderExcelPlots(X,yhat,y.map((v,i)=>v-yhat[i]));
     }catch(e){alert('Xatolik: '+e.message);}
 }
 
@@ -170,10 +197,10 @@ predictBtn.addEventListener('click',()=>{
     predictOutput.textContent=`Prognoz: Y ≈ ${ypred.toFixed(6)}`;
 });
 
-// Dark/Light mode
 toggleThemeBtn.addEventListener('click',()=>{document.body.classList.toggle('light-mode');});
 
-// ---------- Init ----------
 renderTable();
 
 });
+
+
