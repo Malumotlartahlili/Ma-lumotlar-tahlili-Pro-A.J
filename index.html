@@ -1,85 +1,2195 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma'lumotTahlili Pro 3.0</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ma'lumotTahlili Pro 8.0</title>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jstat@1.9.6/dist/jstat.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-<!-- CSS -->
-<link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg2: #0c1730;
+      --panel: rgba(11, 20, 40, 0.95);
+      --panel2: rgba(17, 27, 50, 0.95);
+      --text: #eef4ff;
+      --muted: #98a8c7;
+      --primary: #76a7ff;
+      --primary2: #4e7dff;
+      --success: #3dcc8e;
+      --danger: #ff7b94;
+      --warning: #f5c04c;
+      --border: rgba(255,255,255,.08);
+      --shadow: 0 16px 45px rgba(0,0,0,.25);
+      --radius: 20px;
+    }
 
-<!-- Kutubxonalar -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    body.light {
+      --bg: #f4f7fc;
+      --bg2: #edf3ff;
+      --panel: rgba(255,255,255,.96);
+      --panel2: rgba(255,255,255,.98);
+      --text: #162033;
+      --muted: #65748f;
+      --primary: #4a7dff;
+      --primary2: #7da6ff;
+      --success: #16a66c;
+      --danger: #df4f6b;
+      --warning: #c69219;
+      --border: rgba(23,31,56,.08);
+      --shadow: 0 16px 45px rgba(40,60,100,.12);
+    }
 
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FWJYW831FD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-FWJYW831FD');
-</script>
-<!-- End Google Analytics -->
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(79,130,255,.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(33,208,151,.11), transparent 24%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      color: var(--text);
+    }
 
+    .wrap {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -.6px;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .actions, .sub-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button, .file-label {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel2), var(--panel));
+      color: var(--text);
+      padding: 11px 16px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: var(--shadow);
+      transition: .2s ease;
+    }
+
+    button:hover, .file-label:hover {
+      transform: translateY(-1px);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #8ab5ff, #6b90ff);
+      color: #fff;
+      border: none;
+    }
+
+    button.success {
+      background: linear-gradient(135deg, #2fbf84, #63d6a4);
+      color: #fff;
+      border: none;
+    }
+
+    button.warn {
+      background: linear-gradient(135deg, #d9ab40, #f0c764);
+      color: #fff;
+      border: none;
+    }
+
+    button.danger {
+      background: linear-gradient(135deg, #d75a75, #f5899d);
+      color: #fff;
+      border: none;
+    }
+
+    .file-label input { display: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.25fr .85fr;
+      gap: 20px;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 21px;
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--panel2);
+      font-weight: 900;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 10px;
+      background: transparent;
+      color: var(--text);
+      outline: none;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    select option {
+      color: #111;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .box, .equation-box {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      background: var(--panel2);
+    }
+
+    .equation {
+      font-family: Consolas, monospace;
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .metric-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      min-height: 95px;
+    }
+
+    body.light .metric-card {
+      background: linear-gradient(180deg, rgba(80,110,180,.05), rgba(80,110,180,.02));
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 22px;
+      font-weight: 900;
+      word-break: break-word;
+    }
+
+    .legend-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .legend-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(91,133,255,.08);
+      font-weight: 800;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: rgba(91,133,255,.13);
+      color: var(--primary);
+      font-weight: 900;
+      margin: 0 6px 6px 0;
+    }
+
+    .graphs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .graph-box {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 10px;
+      background: var(--panel2);
+      min-height: 360px;
+    }
+
+    .status {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 800;
+      display: none;
+    }
+
+    .status.show { display: block; }
+    .status.ok {
+      background: rgba(31,185,120,.14);
+      color: #58d59f;
+      border: 1px solid rgba(31,185,120,.24);
+    }
+    .status.err {
+      background: rgba(255,94,124,.14);
+      color: #ff8ea7;
+      border: 1px solid rgba(255,94,124,.24);
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .excel-mini-table {
+      width: 100%;
+      min-width: 100%;
+    }
+
+    .excel-mini-table th, .excel-mini-table td {
+      padding: 9px 10px;
+      font-size: 14px;
+    }
+
+    .excel-mini-table th {
+      background: rgba(91,133,255,.08);
+    }
+
+    .best-row {
+      background: rgba(61,204,142,.12);
+      font-weight: 900;
+    }
+
+    @media (max-width: 1280px) {
+      .grid, .row-2, .row-3, .graphs {
+        grid-template-columns: 1fr;
+      }
+      .mini-grid, .legend-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 12px; }
+      .mini-grid, .legend-list {
+        grid-template-columns: 1fr;
+      }
+      .brand h1 { font-size: 26px; }
+      .equation { font-size: 15px; }
+    }
+  </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Ma'lumotTahlili Pro 8.0</h1>
+        <p>Regression | Diagnostika | QQ Plot | Forecast | XLSX | Eng yaxshi model tanlash</p>
+      </div>
 
-<section class="top">
-<h1>Ma'lumotTahlili Pro 3.0</h1>
-<p class="subtitle">Interaktiv regressiya tahlili</p>
-<button id="toggle-theme">🌙 Dark/Light</button>
-</section>
+      <div class="actions">
+        <button id="themeBtn">🌙 Dark/Light</button>
+        <button id="sampleBtn" class="warn">📦 Namuna ma'lumot</button>
+        <button id="addXBtn">➕ Omil qo‘shish (X)</button>
+        <button id="addRowBtn">➕ Qator qo‘shish</button>
+        <button id="analyzeBtn" class="primary">📊 Hisoblash</button>
+        <button id="autoModelBtn" class="warn">🏆 Eng yaxshi model</button>
+        <button id="clearBtn" class="danger">🧹 Tozalash</button>
+      </div>
+    </div>
 
-<main class="container">
-<section class="panel left">
-<div class="controls">
-<label>Natija (Y) ustun nomi: <input id="y-name" value="Y"></label>
-<button id="add-x">+ Omil qo'shish (X)</button>
-<button id="add-row">+ Qator qo'shish</button>
-<button id="calc">Hisoblash</button>
-<button id="export-csv">CSV yuklab olish</button>
-</div>
+    <div class="grid">
+      <div class="panel">
+        <h2>1. Ma'lumotlar jadvali</h2>
 
-<div class="table-wrap">
-<table id="data-table">
-<thead id="thead"></thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
+        <div class="sub-actions" style="margin-bottom:14px;">
+          <label class="file-label">
+            📂 CSV yuklash
+            <input type="file" id="csvFile" accept=".csv" />
+          </label>
 
-<div class="predict">
-<h3>Prognoz</h3>
-<div id="predict-inputs"></div>
-<button id="predict-btn">Y ni prognoz qil</button>
-<div id="predict-output" class="muted"></div>
-</div>
-</section>
+          <label class="file-label">
+            📗 Excel yuklash
+            <input type="file" id="xlsxFile" accept=".xlsx,.xls" />
+          </label>
 
-<section class="panel right">
-<div class="results">
-<h2>Natijalar</h2>
-<pre id="equation" class="code"></pre>
-<div id="stats" class="muted"></div>
-<div id="coef-table" class="code"></div>
-</div>
+          <button id="exportCsvBtn" class="success">💾 CSV saqlash</button>
+          <button id="exportXlsxBtn" class="success">📘 Excel saqlash</button>
+          <button id="removeLastXBtn">➖ Oxirgi X ni o‘chirish</button>
+          <button id="removeLastRowBtn">➖ Oxirgi qatorni o‘chirish</button>
+        </div>
 
-<div id="charts">
-<h3>Grafiklar</h3>
-<div id="scatter-plot" class="chart"></div>
-<div id="residual-plot" class="chart"></div>
-</div>
-</section>
-</main>
+        <div class="table-wrap">
+          <table id="dataTable"></table>
+        </div>
 
-<footer class="footer">
-<span>© Ma'lumotTahlili Pro 2025</span>
-</footer>
+        <div class="footer-note">
+          Eslatma: ustun nomlari foydalanuvchi uchun ko‘rinadi, lekin model tenglamasida faqat Y, X1, X2, X3... ishlatiladi.
+        </div>
 
-<!-- JS -->
-<script src="script.js"></script>
+        <div id="statusBox" class="status"></div>
+      </div>
+
+      <div class="panel">
+        <h2>2. Model boshqaruvi</h2>
+
+        <div class="row-2" style="margin-bottom:14px;">
+          <div>
+            <div class="small">Model turi</div>
+            <select id="modelType">
+              <option value="linear">Linear model</option>
+              <option value="loglog">Log-Log model</option>
+              <option value="loglin">Log-Lin model</option>
+              <option value="linlog">Lin-Log model</option>
+              <option value="cobb">Cobb-Douglas modeli</option>
+            </select>
+          </div>
+
+          <div>
+            <div class="small">Ishonch oralig‘i</div>
+            <select id="confidenceLevel">
+              <option value="0.90">90%</option>
+              <option value="0.95" selected>95%</option>
+              <option value="0.99">99%</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="box" style="margin-bottom:14px;">
+          <h3>O‘zgaruvchilar xaritasi</h3>
+          <div id="variableTags"></div>
+        </div>
+
+        <div class="equation-box" style="margin-bottom:14px;">
+          <h3>Tenglama ko‘rinishi</h3>
+          <div class="equation" id="equationPreview">Y = β0 + β1X1 + β2X2 + ... + ε</div>
+        </div>
+
+        <div class="box">
+          <h3>Model haqida</h3>
+          <div class="muted" id="modelInfo">Bu yerda tanlangan model haqida ma'lumot chiqadi.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <h2>3. Model comparison</h2>
+      <div class="table-wrap">
+        <table class="excel-mini-table" id="modelCompareTable"></table>
+      </div>
+      <div class="footer-note">
+        Eng yaxshi model hozircha <strong>Adjusted R²</strong> eng katta bo‘lgan model sifatida tanlanadi.
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <h2>4. Asosiy ko‘rsatkichlar</h2>
+      <div class="mini-grid" id="summaryCards"></div>
+    </div>
+
+    <div class="row-2" style="margin-top:20px;">
+      <div class="panel">
+        <h2>5. Natija tenglamasi va legend</h2>
+        <div class="equation-box" style="margin-bottom:14px;">
+          <div class="equation" id="finalEquation">Hisoblashdan keyin tenglama shu yerda chiqadi.</div>
+        </div>
+        <div class="legend-list" id="legendList"></div>
+      </div>
+
+      <div class="panel">
+        <h2>6. Diagnostika</h2>
+        <div class="mini-grid" id="diagnosticCards"></div>
+        <div class="footer-note">
+          VIF 5 dan kichik bo‘lsa yaxshi. Durbin-Watson 2 ga yaqin bo‘lsa yaxshi. Jarque-Bera p-value kichik bo‘lsa normality muammosi bo‘lishi mumkin.
+        </div>
+      </div>
+    </div>
+
+    <div class="row-2" style="margin-top:20px;">
+      <div class="panel">
+        <h2>7. Regression Statistics</h2>
+        <div class="table-wrap">
+          <table class="excel-mini-table" id="regStatsTable"></table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>8. ANOVA jadvali</h2>
+        <div class="table-wrap">
+          <table class="excel-mini-table" id="anovaTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <h2>9. Koeffitsiyentlar jadvali</h2>
+      <div class="table-wrap">
+        <table id="coefTable"></table>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <h2>10. Elastiklik talqini</h2>
+      <div class="table-wrap">
+        <table class="excel-mini-table" id="elasticityTable"></table>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <h2>11. Kuzatuv natijalari</h2>
+      <div class="table-wrap">
+        <table id="predictionTable"></table>
+      </div>
+    </div>
+
+    <div class="row-3" style="margin-top:20px;">
+      <div class="panel">
+        <h2>12. Normality testi</h2>
+        <div class="table-wrap">
+          <table class="excel-mini-table" id="normalityTable"></table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>13. Geteroskedastiklik testi</h2>
+        <div class="table-wrap">
+          <table class="excel-mini-table" id="heteroTable"></table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>14. Outlier tahlili</h2>
+        <div class="table-wrap">
+          <table class="excel-mini-table" id="outlierTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <h2>15. Prognoz bo‘limi</h2>
+      <div class="footer-note" style="margin-bottom:12px;">
+        Har bir qatorda X qiymatlarini vergul bilan yoz. Masalan: <strong>12, 5</strong> yoki 3 ta omil bo‘lsa: <strong>10, 20, 30</strong>
+      </div>
+      <div class="row-2">
+        <div>
+          <div class="small">Yangi X qiymatlari</div>
+          <textarea id="forecastInput" placeholder="Masalan:
+12, 5
+7, 9
+10, 8"></textarea>
+        </div>
+        <div>
+          <div class="small">Boshqaruv</div>
+          <div class="sub-actions">
+            <button id="runForecastBtn" class="primary">🔮 Prognozlash</button>
+            <button id="sampleForecastBtn">📋 Namuna prognoz</button>
+            <button id="clearForecastBtn">🧹 Prognozni tozalash</button>
+          </div>
+          <div class="footer-note">
+            Model linear bo‘lsa oddiy formula ishlatiladi. Log modellarda transformatsiya qoidalari avtomatik qo‘llanadi.
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:16px;">
+        <table id="forecastTable"></table>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <h2>16. Grafiklar</h2>
+      <div class="graphs">
+        <div class="graph-box"><div id="plotActualPredicted" style="width:100%;height:340px;"></div></div>
+        <div class="graph-box"><div id="plotResidualFitted" style="width:100%;height:340px;"></div></div>
+        <div class="graph-box"><div id="plotResidualHist" style="width:100%;height:340px;"></div></div>
+        <div class="graph-box"><div id="plotCorrelation" style="width:100%;height:340px;"></div></div>
+        <div class="graph-box"><div id="plotQQ" style="width:100%;height:340px;"></div></div>
+        <div class="graph-box"><div id="plotOutliers" style="width:100%;height:340px;"></div></div>
+      </div>
+      <div id="xPlots" class="graphs" style="margin-top:18px;"></div>
+    </div>
+  </div>
+
+  <script>
+    const MODEL_LABELS = {
+      linear: "Linear",
+      loglog: "Log-Log",
+      loglin: "Log-Lin",
+      linlog: "Lin-Log",
+      cobb: "Cobb-Douglas"
+    };
+
+    const state = {
+      rows: 8,
+      xCount: 2,
+      yName: "Y natija",
+      xNames: ["X1 nomi", "X2 nomi"],
+      data: [],
+      result: null,
+      forecastRows: [],
+      modelCompare: []
+    };
+
+    function fmt(num, digits = 4) {
+      if (num === null || num === undefined || Number.isNaN(num)) return "-";
+      if (!Number.isFinite(num)) return "∞";
+      return Number(num).toLocaleString("en-US", {
+        maximumFractionDigits: digits,
+        minimumFractionDigits: 0
+      });
+    }
+
+    function showStatus(msg, type = "ok") {
+      const box = document.getElementById("statusBox");
+      box.className = `status show ${type}`;
+      box.textContent = msg;
+      setTimeout(() => box.classList.remove("show"), 4500);
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function safeNumber(v) {
+      if (v === "" || v === null || v === undefined) return NaN;
+      const n = Number(String(v).replace(",", "."));
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function createEmptyData() {
+      state.data = Array.from({ length: state.rows }, () => {
+        const obj = { Y: "" };
+        for (let i = 1; i <= state.xCount; i++) obj["X" + i] = "";
+        return obj;
+      });
+    }
+
+    function ensureShape() {
+      if (!state.data.length) createEmptyData();
+
+      if (state.data.length < state.rows) {
+        for (let i = state.data.length; i < state.rows; i++) {
+          const obj = { Y: "" };
+          for (let j = 1; j <= state.xCount; j++) obj["X" + j] = "";
+          state.data.push(obj);
+        }
+      } else if (state.data.length > state.rows) {
+        state.data.length = state.rows;
+      }
+
+      state.data.forEach(r => {
+        if (!("Y" in r)) r.Y = "";
+        for (let i = 1; i <= state.xCount; i++) {
+          if (!("X" + i in r)) r["X" + i] = "";
+        }
+      });
+    }
+
+    function updateVariableTags() {
+      const box = document.getElementById("variableTags");
+      let html = `<span class="tag">Y = ${escapeHtml(state.yName)}</span>`;
+      for (let i = 1; i <= state.xCount; i++) {
+        html += `<span class="tag">X${i} = ${escapeHtml(state.xNames[i - 1] || ("X" + i))}</span>`;
+      }
+      box.innerHTML = html;
+    }
+
+    function updateEquationPreview() {
+      const model = document.getElementById("modelType").value;
+      const eq = document.getElementById("equationPreview");
+      const info = document.getElementById("modelInfo");
+
+      if (model === "linear") {
+        eq.textContent = "Y = β0 + β1X1 + β2X2 + ... + ε";
+        info.textContent = "Linear modelda Y to‘g‘ridan-to‘g‘ri X omillari orqali baholanadi.";
+      } else if (model === "loglog") {
+        eq.textContent = "ln(Y) = β0 + β1ln(X1) + β2ln(X2) + ... + ε";
+        info.textContent = "Log-Log modelda Y va barcha X lar logarifmlanadi. Koeffitsiyentlar elastiklik sifatida talqin qilinadi.";
+      } else if (model === "loglin") {
+        eq.textContent = "ln(Y) = β0 + β1X1 + β2X2 + ... + ε";
+        info.textContent = "Log-Lin modelda Y logarifmlanadi, X lar esa oddiy holatda qoladi.";
+      } else if (model === "linlog") {
+        eq.textContent = "Y = β0 + β1ln(X1) + β2ln(X2) + ... + ε";
+        info.textContent = "Lin-Log modelda X omillari logarifmlanadi, Y esa oddiy ko‘rinishda qoladi.";
+      } else if (model === "cobb") {
+        eq.textContent = "Y = A · X1^β1 · X2^β2 · ...";
+        info.textContent = "Cobb-Douglas modeli iqtisodiy tahlilda muhim model bo‘lib, ko‘pincha ishlab chiqarish funksiyasi sifatida ishlatiladi.";
+      }
+    }
+
+    function renderLegendOnly() {
+      const list = document.getElementById("legendList");
+      let html = `<div class="legend-item"><strong>Y</strong> = ${escapeHtml(state.yName)}</div>`;
+      for (let i = 1; i <= state.xCount; i++) {
+        html += `<div class="legend-item"><strong>X${i}</strong> = ${escapeHtml(state.xNames[i - 1] || ("X" + i))}</div>`;
+      }
+      list.innerHTML = html;
+    }
+
+    function renderTable() {
+      ensureShape();
+      updateVariableTags();
+      updateEquationPreview();
+
+      const table = document.getElementById("dataTable");
+      let html = `
+        <thead>
+          <tr>
+            <th style="min-width:70px;">#</th>
+            <th style="min-width:180px;">
+              <div class="small">Y ustuni nomi</div>
+              <input value="${escapeHtml(state.yName)}" onchange="changeYName(this.value)" />
+            </th>
+      `;
+
+      for (let i = 1; i <= state.xCount; i++) {
+        html += `
+          <th style="min-width:180px;">
+            <div class="small">X${i} ustuni nomi</div>
+            <input value="${escapeHtml(state.xNames[i - 1] || "")}" onchange="changeXName(${i}, this.value)" />
+          </th>
+        `;
+      }
+
+      html += `</tr></thead><tbody>`;
+      state.data.forEach((row, r) => {
+        html += `<tr><td><strong>${r + 1}</strong></td>`;
+        html += `<td><input type="number" step="any" value="${row.Y}" oninput="setCell(${r}, 'Y', this.value)" /></td>`;
+        for (let i = 1; i <= state.xCount; i++) {
+          html += `<td><input type="number" step="any" value="${row["X" + i]}" oninput="setCell(${r}, 'X${i}', this.value)" /></td>`;
+        }
+        html += `</tr>`;
+      });
+      html += `</tbody>`;
+      table.innerHTML = html;
+    }
+
+    function changeYName(v) {
+      state.yName = v || "Y natija";
+      renderTable();
+      renderLegendOnly();
+    }
+
+    function changeXName(index, v) {
+      state.xNames[index - 1] = v || `X${index}`;
+      renderTable();
+      renderLegendOnly();
+    }
+
+    function setCell(r, key, value) {
+      state.data[r][key] = value;
+    }
+
+    function addX() {
+      state.xCount++;
+      state.xNames.push(`X${state.xCount} nomi`);
+      state.data.forEach(r => r["X" + state.xCount] = "");
+      renderTable();
+    }
+
+    function removeLastX() {
+      if (state.xCount <= 1) {
+        showStatus("Kamida 1 ta X qolishi kerak.", "err");
+        return;
+      }
+      state.data.forEach(r => delete r["X" + state.xCount]);
+      state.xNames.pop();
+      state.xCount--;
+      renderTable();
+    }
+
+    function addRow() {
+      state.rows++;
+      const obj = { Y: "" };
+      for (let i = 1; i <= state.xCount; i++) obj["X" + i] = "";
+      state.data.push(obj);
+      renderTable();
+    }
+
+    function removeLastRow() {
+      if (state.rows <= 2) {
+        showStatus("Kamida 2 ta qator qolishi kerak.", "err");
+        return;
+      }
+      state.rows--;
+      state.data.pop();
+      renderTable();
+    }
+
+    function clearAll() {
+      state.result = null;
+      state.forecastRows = [];
+      state.modelCompare = [];
+      createEmptyData();
+      renderTable();
+      clearOutputs();
+      showStatus("Jadval tozalandi.");
+    }
+
+    function fillSample() {
+      state.rows = 8;
+      state.xCount = 2;
+      state.yName = "Y natija";
+      state.xNames = ["X1 nomi", "X2 nomi"];
+      state.data = [
+        { Y: 10, X1: 5, X2: 8 },
+        { Y: 20, X1: 6, X2: 10 },
+        { Y: 18, X1: 8, X2: 11 },
+        { Y: 17, X1: 7, X2: 15 },
+        { Y: 16, X1: 3, X2: 14 },
+        { Y: 21, X1: 10, X2: 12 },
+        { Y: 22, X1: 11, X2: 10 },
+        { Y: 23, X1: 9, X2: 10 }
+      ];
+      renderTable();
+      showStatus("Namuna ma'lumot yuklandi.");
+    }
+
+    function getValidRows() {
+      const rows = [];
+      for (const row of state.data) {
+        const y = safeNumber(row.Y);
+        const xs = [];
+        let ok = Number.isFinite(y);
+
+        for (let i = 1; i <= state.xCount; i++) {
+          const x = safeNumber(row["X" + i]);
+          xs.push(x);
+          if (!Number.isFinite(x)) ok = false;
+        }
+
+        if (ok) rows.push({ y, xs });
+      }
+      return rows;
+    }
+
+    function transformRows(rows, model) {
+      return rows.map(r => {
+        let y = r.y;
+        let xs = [...r.xs];
+
+        if (model === "loglog" || model === "cobb") {
+          if (y <= 0 || xs.some(v => v <= 0)) {
+            throw new Error("Log-Log yoki Cobb-Douglas uchun barcha qiymatlar 0 dan katta bo‘lishi kerak.");
+          }
+          y = Math.log(y);
+          xs = xs.map(v => Math.log(v));
+        } else if (model === "loglin") {
+          if (y <= 0) throw new Error("Log-Lin uchun Y qiymatlari 0 dan katta bo‘lishi kerak.");
+          y = Math.log(y);
+        } else if (model === "linlog") {
+          if (xs.some(v => v <= 0)) {
+            throw new Error("Lin-Log uchun barcha X qiymatlari 0 dan katta bo‘lishi kerak.");
+          }
+          xs = xs.map(v => Math.log(v));
+        }
+
+        return {
+          y,
+          xs,
+          originalY: r.y,
+          originalXs: r.xs
+        };
+      });
+    }
+
+    function transformForecastXs(xs, model) {
+      let arr = [...xs];
+      if (model === "linear" || model === "loglin") return arr;
+
+      if (arr.some(v => v <= 0)) {
+        throw new Error("Tanlangan model uchun prognoz X qiymatlari 0 dan katta bo‘lishi kerak.");
+      }
+      return arr.map(v => Math.log(v));
+    }
+
+    function matArray(m) {
+      const val = math.squeeze(m).valueOf();
+      return Array.isArray(val) ? val.flat(Infinity) : [val];
+    }
+
+    function diagFromMatrix(m) {
+      const arr = m.valueOf();
+      const d = [];
+      for (let i = 0; i < arr.length; i++) d.push(arr[i][i]);
+      return d;
+    }
+
+    function corr(a, b) {
+      const ma = math.mean(a);
+      const mb = math.mean(b);
+      let num = 0, da = 0, db = 0;
+      for (let i = 0; i < a.length; i++) {
+        num += (a[i] - ma) * (b[i] - mb);
+        da += (a[i] - ma) ** 2;
+        db += (b[i] - mb) ** 2;
+      }
+      if (da === 0 || db === 0) return 0;
+      return num / Math.sqrt(da * db);
+    }
+
+    function skewness(arr) {
+      const n = arr.length;
+      const mean = math.mean(arr);
+      const sd = math.std(arr, 'uncorrected');
+      if (!sd) return 0;
+      let s = 0;
+      for (const x of arr) s += Math.pow((x - mean) / sd, 3);
+      return s / n;
+    }
+
+    function kurtosis(arr) {
+      const n = arr.length;
+      const mean = math.mean(arr);
+      const sd = math.std(arr, 'uncorrected');
+      if (!sd) return 3;
+      let s = 0;
+      for (const x of arr) s += Math.pow((x - mean) / sd, 4);
+      return s / n;
+    }
+
+    function qqData(arr) {
+      const sorted = [...arr].sort((a, b) => a - b);
+      const n = sorted.length;
+      const theo = [];
+      for (let i = 1; i <= n; i++) {
+        const p = (i - 0.5) / n;
+        theo.push(jStat.normal.inv(p, 0, 1));
+      }
+      return { theoretical: theo, sample: sorted };
+    }
+
+    function fitModel(model, rawRows, confLevel) {
+      const rows = transformRows(rawRows, model);
+      const n = rows.length;
+      const k = state.xCount;
+
+      const X = rows.map(r => [1, ...r.xs]);
+      const Y = rows.map(r => [r.y]);
+
+      const Xmat = math.matrix(X);
+      const Ymat = math.matrix(Y);
+      const Xt = math.transpose(Xmat);
+      const XtX = math.multiply(Xt, Xmat);
+      const XtXInv = math.inv(XtX);
+      const XtY = math.multiply(Xt, Ymat);
+      const beta = math.multiply(XtXInv, XtY);
+
+      const betaArr = matArray(beta);
+      const yHat = matArray(math.multiply(Xmat, beta));
+      const yArr = rows.map(r => r.y);
+
+      const residuals = yArr.map((v, i) => v - yHat[i]);
+      const yMean = math.mean(yArr);
+
+      const SSE = residuals.reduce((s, e) => s + e * e, 0);
+      const SST = yArr.reduce((s, v) => s + (v - yMean) ** 2, 0);
+      const SSR = SST - SSE;
+
+      const dfModel = k;
+      const dfResidual = n - k - 1;
+      const dfTotal = n - 1;
+
+      const MSE = SSE / dfResidual;
+      const MSR = SSR / dfModel;
+      const regressionStdError = Math.sqrt(MSE);
+
+      const R2 = SST === 0 ? 1 : 1 - SSE / SST;
+      const adjR2 = 1 - (1 - R2) * ((n - 1) / dfResidual);
+      const R = Math.sqrt(Math.max(0, R2));
+
+      const F = MSR / MSE;
+      const pF = 1 - jStat.centralF.cdf(F, dfModel, dfResidual);
+
+      const covBeta = math.multiply(MSE, XtXInv);
+      const diag = diagFromMatrix(covBeta);
+      const stdErr = diag.map(v => Math.sqrt(Math.abs(v)));
+
+      const tStats = betaArr.map((b, i) => {
+        if (!stdErr[i] || stdErr[i] === 0) return NaN;
+        return b / stdErr[i];
+      });
+
+      const pValues = tStats.map(t => {
+        if (!Number.isFinite(t)) return NaN;
+        return 2 * (1 - jStat.studentt.cdf(Math.abs(t), dfResidual));
+      });
+
+      const alpha = 1 - confLevel;
+      const tCrit = jStat.studentt.inv(1 - alpha / 2, dfResidual);
+
+      const ciLower = betaArr.map((b, i) => b - tCrit * stdErr[i]);
+      const ciUpper = betaArr.map((b, i) => b + tCrit * stdErr[i]);
+
+      const fittedOriginal = rows.map((r, i) => {
+        if (model === "linear" || model === "linlog") return yHat[i];
+        return Math.exp(yHat[i]);
+      });
+
+      const actualOriginal = rows.map(r => r.originalY);
+      const residualsOriginal = actualOriginal.map((v, i) => v - fittedOriginal[i]);
+
+      const MAE = residualsOriginal.reduce((s, e) => s + Math.abs(e), 0) / n;
+      const MAPE = actualOriginal.some(v => v === 0)
+        ? NaN
+        : residualsOriginal.reduce((s, e, i) => s + Math.abs(e / actualOriginal[i]), 0) / n * 100;
+
+      let dwTop = 0;
+      for (let i = 1; i < residualsOriginal.length; i++) {
+        dwTop += (residualsOriginal[i] - residualsOriginal[i - 1]) ** 2;
+      }
+      const dwBottom = residualsOriginal.reduce((s, e) => s + e * e, 0);
+      const durbinWatson = dwBottom === 0 ? NaN : dwTop / dwBottom;
+
+      const vif = [];
+      for (let target = 0; target < k; target++) {
+        const yVif = rawRows.map(r => r.xs[target]);
+
+        const xVif = rawRows.map(r => {
+          const arr = [1];
+          for (let j = 0; j < k; j++) {
+            if (j !== target) arr.push(r.xs[j]);
+          }
+          return arr;
+        });
+
+        if (xVif[0].length <= 1) {
+          vif.push(1);
+        } else {
+          const Xv = math.matrix(xVif);
+          const Yv = math.matrix(yVif.map(v => [v]));
+          const b2 = math.multiply(
+            math.multiply(math.inv(math.multiply(math.transpose(Xv), Xv)), math.transpose(Xv)),
+            Yv
+          );
+          const yhat2 = matArray(math.multiply(Xv, b2));
+          const mean2 = math.mean(yVif);
+          const sse2 = yVif.reduce((s, v, i) => s + (v - yhat2[i]) ** 2, 0);
+          const sst2 = yVif.reduce((s, v) => s + (v - mean2) ** 2, 0);
+          const r2_2 = sst2 === 0 ? 1 : 1 - sse2 / sst2;
+          const val = (1 - r2_2) === 0 ? Infinity : 1 / (1 - r2_2);
+          vif.push(val);
+        }
+      }
+
+      const coefRows = [];
+      coefRows.push({
+        code: "Intercept",
+        name: "Doimiy had",
+        coef: betaArr[0],
+        se: stdErr[0],
+        t: tStats[0],
+        p: pValues[0],
+        low: ciLower[0],
+        high: ciUpper[0],
+        vif: null
+      });
+
+      for (let i = 1; i <= k; i++) {
+        coefRows.push({
+          code: "X" + i,
+          name: state.xNames[i - 1] || ("X" + i),
+          coef: betaArr[i],
+          se: stdErr[i],
+          t: tStats[i],
+          p: pValues[i],
+          low: ciLower[i],
+          high: ciUpper[i],
+          vif: vif[i - 1]
+        });
+      }
+
+      const predictionRows = rows.map((r, i) => {
+        const obj = {
+          index: i + 1,
+          actual: actualOriginal[i],
+          predicted: fittedOriginal[i],
+          residual: residualsOriginal[i]
+        };
+        for (let j = 1; j <= k; j++) obj["X" + j] = r.originalXs[j - 1];
+        return obj;
+      });
+
+      const corrVars = { Y: actualOriginal };
+      for (let i = 1; i <= k; i++) corrVars["X" + i] = rawRows.map(r => r.xs[i - 1]);
+
+      const sk = skewness(residualsOriginal);
+      const ku = kurtosis(residualsOriginal);
+      const jb = (n / 6) * (sk * sk + Math.pow(ku - 3, 2) / 4);
+      const jbP = 1 - jStat.chisquare.cdf(jb, 2);
+
+      const e2 = residualsOriginal.map(e => e * e);
+      const bpX = math.matrix(rawRows.map(r => [1, ...r.xs]));
+      const bpY = math.matrix(e2.map(v => [v]));
+      const bpXt = math.transpose(bpX);
+      const bpBeta = math.multiply(
+        math.multiply(math.inv(math.multiply(bpXt, bpX)), bpXt),
+        bpY
+      );
+      const bpYhat = matArray(math.multiply(bpX, bpBeta));
+      const bpMean = math.mean(e2);
+      const bpSSE = e2.reduce((s, v, i) => s + Math.pow(v - bpYhat[i], 2), 0);
+      const bpSST = e2.reduce((s, v) => s + Math.pow(v - bpMean, 2), 0);
+      const bpR2 = bpSST === 0 ? 0 : 1 - bpSSE / bpSST;
+      const bpStat = n * bpR2;
+      const bpP = 1 - jStat.chisquare.cdf(bpStat, k);
+
+      const standardizedResiduals = residualsOriginal.map(e => regressionStdError ? e / regressionStdError : NaN);
+      const outliers = predictionRows.map((row, i) => ({
+        index: row.index,
+        residual: row.residual,
+        standardizedResidual: standardizedResiduals[i],
+        isOutlier: Math.abs(standardizedResiduals[i]) > 2
+      }));
+      const outlierCount = outliers.filter(x => x.isOutlier).length;
+      const qq = qqData(residualsOriginal);
+
+      return {
+        model,
+        n,
+        k,
+        betaArr,
+        coefRows,
+        regressionStats: {
+          multipleR: R,
+          rSquare: R2,
+          adjustedRSquare: adjR2,
+          standardError: regressionStdError,
+          observations: n
+        },
+        anova: {
+          regression: { df: dfModel, ss: SSR, ms: MSR, f: F, significanceF: pF },
+          residual: { df: dfResidual, ss: SSE, ms: MSE },
+          total: { df: dfTotal, ss: SST }
+        },
+        metrics: {
+          R, R2, adjR2, regressionStdError, MAE, MAPE, F, pF, SSE, SSR, SST, dfModel, dfResidual, dfTotal
+        },
+        diagnostics: {
+          durbinWatson,
+          vif,
+          maxVif: Math.max(...vif),
+          jarqueBera: jb,
+          jarqueBeraP: jbP,
+          bpStat,
+          bpP,
+          outlierCount
+        },
+        actualOriginal,
+        fittedOriginal,
+        residualsOriginal,
+        standardizedResiduals,
+        predictionRows,
+        outliers,
+        rawRows,
+        corrVars,
+        qq
+      };
+    }
+
+    function compareAllModels(rawRows, confLevel) {
+      const models = ["linear", "loglog", "loglin", "linlog", "cobb"];
+      const results = [];
+
+      for (const model of models) {
+        try {
+          const res = fitModel(model, rawRows, confLevel);
+          results.push({
+            model,
+            label: MODEL_LABELS[model],
+            ok: true,
+            adjR2: res.metrics.adjR2,
+            r2: res.metrics.R2,
+            f: res.metrics.F,
+            pf: res.metrics.pF,
+            rmse: res.metrics.regressionStdError,
+            res
+          });
+        } catch (err) {
+          results.push({
+            model,
+            label: MODEL_LABELS[model],
+            ok: false,
+            error: err.message
+          });
+        }
+      }
+
+      const valid = results.filter(x => x.ok);
+      if (valid.length) {
+        valid.sort((a, b) => b.adjR2 - a.adjR2);
+        const bestModel = valid[0].model;
+        results.forEach(r => r.best = r.model === bestModel);
+      }
+
+      state.modelCompare = results;
+      renderModelCompareTable();
+      return results;
+    }
+
+    function analyzeSelected() {
+      try {
+        const rawRows = getValidRows();
+        const model = document.getElementById("modelType").value;
+        const confLevel = Number(document.getElementById("confidenceLevel").value);
+
+        if (rawRows.length < state.xCount + 2) {
+          showStatus(`Kamida ${state.xCount + 2} ta to‘liq qator kerak.`, "err");
+          return;
+        }
+
+        state.result = fitModel(model, rawRows, confLevel);
+        compareAllModels(rawRows, confLevel);
+        renderAll();
+        showStatus("Hisoblash muvaffaqiyatli bajarildi.");
+      } catch (err) {
+        console.error(err);
+        showStatus("Xatolik: " + err.message, "err");
+      }
+    }
+
+    function autoChooseBestModel() {
+      try {
+        const rawRows = getValidRows();
+        const confLevel = Number(document.getElementById("confidenceLevel").value);
+
+        if (rawRows.length < state.xCount + 2) {
+          showStatus(`Kamida ${state.xCount + 2} ta to‘liq qator kerak.`, "err");
+          return;
+        }
+
+        const results = compareAllModels(rawRows, confLevel);
+        const best = results.find(r => r.best && r.ok);
+        if (!best) {
+          showStatus("Mos model topilmadi.", "err");
+          return;
+        }
+
+        document.getElementById("modelType").value = best.model;
+        updateEquationPreview();
+        state.result = best.res;
+        renderAll();
+        showStatus(`Eng yaxshi model tanlandi: ${best.label}`);
+      } catch (err) {
+        showStatus("Xatolik: " + err.message, "err");
+      }
+    }
+
+    function getEquationText() {
+      if (!state.result) return "Hisoblashdan keyin tenglama shu yerda chiqadi.";
+
+      const model = state.result.model;
+      const b = state.result.betaArr;
+
+      if (model === "cobb") {
+        let txt = `Y = ${fmt(Math.exp(b[0]))}`;
+        for (let i = 1; i < b.length; i++) txt += ` · X${i}^${fmt(b[i])}`;
+        return txt;
+      }
+
+      if (model === "loglog") {
+        let txt = `ln(Y) = ${fmt(b[0])}`;
+        for (let i = 1; i < b.length; i++) txt += `${b[i] >= 0 ? " + " : " - "}${fmt(Math.abs(b[i]))}ln(X${i})`;
+        return txt;
+      }
+
+      if (model === "loglin") {
+        let txt = `ln(Y) = ${fmt(b[0])}`;
+        for (let i = 1; i < b.length; i++) txt += `${b[i] >= 0 ? " + " : " - "}${fmt(Math.abs(b[i]))}X${i}`;
+        return txt;
+      }
+
+      if (model === "linlog") {
+        let txt = `Y = ${fmt(b[0])}`;
+        for (let i = 1; i < b.length; i++) txt += `${b[i] >= 0 ? " + " : " - "}${fmt(Math.abs(b[i]))}ln(X${i})`;
+        return txt;
+      }
+
+      let txt = `Y = ${fmt(b[0])}`;
+      for (let i = 1; i < b.length; i++) txt += `${b[i] >= 0 ? " + " : " - "}${fmt(Math.abs(b[i]))}X${i}`;
+      return txt;
+    }
+
+    function renderModelCompareTable() {
+      const table = document.getElementById("modelCompareTable");
+      if (!state.modelCompare.length) {
+        table.innerHTML = "";
+        return;
+      }
+
+      let html = `
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Holat</th>
+            <th>Adjusted R²</th>
+            <th>R²</th>
+            <th>F</th>
+            <th>Prob(F)</th>
+            <th>Standart xatolik</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+      state.modelCompare.forEach(r => {
+        if (!r.ok) {
+          html += `
+            <tr>
+              <td>${r.label}</td>
+              <td>Xatolik</td>
+              <td colspan="5">${escapeHtml(r.error)}</td>
+            </tr>
+          `;
+        } else {
+          html += `
+            <tr class="${r.best ? "best-row" : ""}">
+              <td>${r.label}${r.best ? " 🏆" : ""}</td>
+              <td>Muvaffaqiyatli</td>
+              <td>${fmt(r.adjR2, 9)}</td>
+              <td>${fmt(r.r2, 9)}</td>
+              <td>${fmt(r.f, 9)}</td>
+              <td>${fmt(r.pf, 9)}</td>
+              <td>${fmt(r.rmse, 9)}</td>
+            </tr>
+          `;
+        }
+      });
+
+      html += `</tbody>`;
+      table.innerHTML = html;
+    }
+
+    function renderSummary() {
+      const box = document.getElementById("summaryCards");
+      if (!state.result) { box.innerHTML = ""; return; }
+
+      const m = state.result.metrics;
+      const items = [
+        ["Kuzatuvlar soni", state.result.n],
+        ["R", m.R],
+        ["R²", m.R2],
+        ["Adjusted R²", m.adjR2],
+        ["Standart xatolik", m.regressionStdError],
+        ["MAE", m.MAE],
+        ["MAPE %", m.MAPE],
+        ["F-statistika", m.F],
+        ["Prob(F)", m.pF],
+        ["SSE", m.SSE],
+        ["SSR", m.SSR],
+        ["SST", m.SST]
+      ];
+
+      box.innerHTML = items.map(([label, val]) => `
+        <div class="metric-card">
+          <div class="metric-label">${label}</div>
+          <div class="metric-value">${fmt(val)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderDiagnostics() {
+      const box = document.getElementById("diagnosticCards");
+      if (!state.result) { box.innerHTML = ""; return; }
+
+      const d = state.result.diagnostics;
+      const vifHolat = d.maxVif < 5 ? "Yaxshi" : d.maxVif < 10 ? "O‘rtacha" : "Yuqori";
+      const dwHolat = Math.abs(d.durbinWatson - 2) < 0.5 ? "Yaxshi" : "Tekshirish kerak";
+      const normHolat = d.jarqueBeraP > 0.05 ? "Taxminan normal" : "Normal emas ehtimoli bor";
+      const heteroHolat = d.bpP > 0.05 ? "Muammo sezilmadi" : "Geteroskedastiklik ehtimoli bor";
+
+      const items = [
+        ["Durbin-Watson", d.durbinWatson],
+        ["Eng katta VIF", d.maxVif],
+        ["Normality", normHolat],
+        ["Heteroskedastiklik", heteroHolat],
+        ["VIF holati", vifHolat],
+        ["DW holati", dwHolat]
+      ];
+
+      box.innerHTML = items.map(([label, val]) => `
+        <div class="metric-card">
+          <div class="metric-label">${label}</div>
+          <div class="metric-value">${typeof val === "string" ? val : fmt(val)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderEquation() {
+      document.getElementById("finalEquation").textContent = getEquationText();
+      renderLegendOnly();
+    }
+
+    function renderRegStatsTable() {
+      const table = document.getElementById("regStatsTable");
+      if (!state.result) { table.innerHTML = ""; return; }
+
+      const r = state.result.regressionStats;
+      table.innerHTML = `
+        <thead><tr><th colspan="2">Regression Statistics</th></tr></thead>
+        <tbody>
+          <tr><td>Multiple R</td><td>${fmt(r.multipleR, 9)}</td></tr>
+          <tr><td>R Square</td><td>${fmt(r.rSquare, 9)}</td></tr>
+          <tr><td>Adjusted R Square</td><td>${fmt(r.adjustedRSquare, 9)}</td></tr>
+          <tr><td>Standard Error</td><td>${fmt(r.standardError, 9)}</td></tr>
+          <tr><td>Observations</td><td>${fmt(r.observations, 0)}</td></tr>
+        </tbody>
+      `;
+    }
+
+    function renderAnovaTable() {
+      const table = document.getElementById("anovaTable");
+      if (!state.result) { table.innerHTML = ""; return; }
+
+      const a = state.result.anova;
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Manba</th>
+            <th>df</th>
+            <th>SS</th>
+            <th>MS</th>
+            <th>F</th>
+            <th>Significance F</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Regression</td>
+            <td>${fmt(a.regression.df, 0)}</td>
+            <td>${fmt(a.regression.ss, 9)}</td>
+            <td>${fmt(a.regression.ms, 9)}</td>
+            <td>${fmt(a.regression.f, 9)}</td>
+            <td>${fmt(a.regression.significanceF, 9)}</td>
+          </tr>
+          <tr>
+            <td>Residual</td>
+            <td>${fmt(a.residual.df, 0)}</td>
+            <td>${fmt(a.residual.ss, 9)}</td>
+            <td>${fmt(a.residual.ms, 9)}</td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>Total</td>
+            <td>${fmt(a.total.df, 0)}</td>
+            <td>${fmt(a.total.ss, 9)}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+        </tbody>
+      `;
+    }
+
+    function renderCoefTable() {
+      const table = document.getElementById("coefTable");
+      if (!state.result) { table.innerHTML = ""; return; }
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Kod</th>
+            <th>Nomi</th>
+            <th>Koeffitsiyent</th>
+            <th>Standart xatolik</th>
+            <th>t-statistika</th>
+            <th>p-qiymat</th>
+            <th>Pastki 95%</th>
+            <th>Yuqori 95%</th>
+            <th>VIF</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${state.result.coefRows.map(r => `
+            <tr>
+              <td><strong>${r.code}</strong></td>
+              <td>${escapeHtml(r.name)}</td>
+              <td>${fmt(r.coef, 9)}</td>
+              <td>${fmt(r.se, 9)}</td>
+              <td>${fmt(r.t, 9)}</td>
+              <td>${fmt(r.p, 9)}</td>
+              <td>${fmt(r.low, 9)}</td>
+              <td>${fmt(r.high, 9)}</td>
+              <td>${r.vif == null ? "-" : fmt(r.vif, 9)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      `;
+    }
+
+    function renderElasticityTable() {
+      const table = document.getElementById("elasticityTable");
+      if (!state.result) { table.innerHTML = ""; return; }
+
+      const model = state.result.model;
+      let rows = [];
+
+      if (model === "loglog" || model === "cobb") {
+        rows = state.result.coefRows
+          .filter(r => r.code !== "Intercept")
+          .map(r => ({
+            code: r.code,
+            name: r.name,
+            elasticity: r.coef,
+            interpretation: r.coef >= 0
+              ? `${r.code} 1% ga oshsa, Y taxminan ${fmt(Math.abs(r.coef), 4)}% ga oshadi`
+              : `${r.code} 1% ga oshsa, Y taxminan ${fmt(Math.abs(r.coef), 4)}% ga kamayadi`
+          }));
+      } else {
+        rows = state.result.coefRows
+          .filter(r => r.code !== "Intercept")
+          .map(r => ({
+            code: r.code,
+            name: r.name,
+            elasticity: null,
+            interpretation: `${r.code} 1 birlikka o‘zgarsa, Y taxminan ${fmt(r.coef, 4)} birlikka o‘zgaradi`
+          }));
+      }
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Kod</th>
+            <th>Nomi</th>
+            <th>Elastiklik / ta’sir</th>
+            <th>Talqin</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>${r.code}</td>
+              <td>${escapeHtml(r.name)}</td>
+              <td>${r.elasticity == null ? "-" : fmt(r.elasticity, 9)}</td>
+              <td>${escapeHtml(r.interpretation)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      `;
+    }
+
+    function renderPredictionTable() {
+      const table = document.getElementById("predictionTable");
+      if (!state.result) { table.innerHTML = ""; return; }
+
+      let head = `<thead><tr><th>#</th>`;
+      for (let i = 1; i <= state.result.k; i++) head += `<th>X${i}</th>`;
+      head += `<th>Haqiqiy Y</th><th>Bashorat qilingan Y</th><th>Qoldiq</th></tr></thead>`;
+
+      let body = "<tbody>";
+      state.result.predictionRows.forEach(r => {
+        body += `<tr><td><strong>${r.index}</strong></td>`;
+        for (let i = 1; i <= state.result.k; i++) body += `<td>${fmt(r["X" + i])}</td>`;
+        body += `<td>${fmt(r.actual)}</td><td>${fmt(r.predicted)}</td><td>${fmt(r.residual)}</td></tr>`;
+      });
+      body += "</tbody>";
+
+      table.innerHTML = head + body;
+    }
+
+    function renderNormalityTable() {
+      const table = document.getElementById("normalityTable");
+      if (!state.result) { table.innerHTML = ""; return; }
+      const d = state.result.diagnostics;
+      const holat = d.jarqueBeraP > 0.05 ? "Qoldiqlar taxminan normal" : "Normality muammosi bo‘lishi mumkin";
+
+      table.innerHTML = `
+        <thead><tr><th colspan="2">Jarque-Bera</th></tr></thead>
+        <tbody>
+          <tr><td>JB statistika</td><td>${fmt(d.jarqueBera, 9)}</td></tr>
+          <tr><td>p-qiymat</td><td>${fmt(d.jarqueBeraP, 9)}</td></tr>
+          <tr><td>Holat</td><td>${holat}</td></tr>
+        </tbody>
+      `;
+    }
+
+    function renderHeteroTable() {
+      const table = document.getElementById("heteroTable");
+      if (!state.result) { table.innerHTML = ""; return; }
+      const d = state.result.diagnostics;
+      const holat = d.bpP > 0.05 ? "Muammo sezilmadi" : "Geteroskedastiklik ehtimoli bor";
+
+      table.innerHTML = `
+        <thead><tr><th colspan="2">Breusch-Pagan</th></tr></thead>
+        <tbody>
+          <tr><td>BP statistika</td><td>${fmt(d.bpStat, 9)}</td></tr>
+          <tr><td>p-qiymat</td><td>${fmt(d.bpP, 9)}</td></tr>
+          <tr><td>Holat</td><td>${holat}</td></tr>
+        </tbody>
+      `;
+    }
+
+    function renderOutlierTable() {
+      const table = document.getElementById("outlierTable");
+      if (!state.result) { table.innerHTML = ""; return; }
+      const outliers = state.result.outliers.filter(x => x.isOutlier);
+
+      let html = `
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Standartlashgan qoldiq</th>
+            <th>Holat</th>
+          </tr>
+        </thead><tbody>
+      `;
+
+      if (!outliers.length) {
+        html += `<tr><td colspan="3">Kuchli outlier topilmadi</td></tr>`;
+      } else {
+        outliers.forEach(o => {
+          html += `<tr>
+            <td>${o.index}</td>
+            <td>${fmt(o.standardizedResidual, 9)}</td>
+            <td>Outlier</td>
+          </tr>`;
+        });
+      }
+
+      html += `</tbody>`;
+      table.innerHTML = html;
+    }
+
+    function renderForecastTable() {
+      const table = document.getElementById("forecastTable");
+      if (!state.forecastRows.length) {
+        table.innerHTML = "";
+        return;
+      }
+
+      let head = `<thead><tr><th>#</th>`;
+      for (let i = 1; i <= state.xCount; i++) head += `<th>X${i}</th>`;
+      head += `<th>Prognoz Y</th></tr></thead>`;
+
+      let body = "<tbody>";
+      state.forecastRows.forEach((r, idx) => {
+        body += `<tr><td>${idx + 1}</td>`;
+        r.xs.forEach(v => body += `<td>${fmt(v, 9)}</td>`);
+        body += `<td>${fmt(r.y, 9)}</td></tr>`;
+      });
+      body += "</tbody>";
+
+      table.innerHTML = head + body;
+    }
+
+    function renderPlots() {
+      if (!state.result) return;
+
+      const light = document.body.classList.contains("light");
+      const bg = light ? "#ffffff" : "#0f1930";
+      const fontColor = light ? "#17233c" : "#eef4ff";
+      const grid = light ? "rgba(20,30,50,.10)" : "rgba(255,255,255,.08)";
+
+      const commonLayout = {
+        paper_bgcolor: bg,
+        plot_bgcolor: bg,
+        font: { color: fontColor, size: 12 },
+        margin: { l: 55, r: 20, t: 50, b: 50 },
+        xaxis: { gridcolor: grid, zerolinecolor: grid },
+        yaxis: { gridcolor: grid, zerolinecolor: grid }
+      };
+
+      Plotly.newPlot("plotActualPredicted", [
+        {
+          x: state.result.actualOriginal,
+          y: state.result.fittedOriginal,
+          mode: "markers",
+          type: "scatter",
+          name: "Kuzatuv nuqtalari"
+        },
+        {
+          x: [Math.min(...state.result.actualOriginal), Math.max(...state.result.actualOriginal)],
+          y: [Math.min(...state.result.actualOriginal), Math.max(...state.result.actualOriginal)],
+          mode: "lines",
+          type: "scatter",
+          name: "Mos kelish chizig‘i"
+        }
+      ], {
+        ...commonLayout,
+        title: "Haqiqiy Y va bashorat qilingan Y",
+        xaxis: { ...commonLayout.xaxis, title: "Haqiqiy Y" },
+        yaxis: { ...commonLayout.yaxis, title: "Bashorat qilingan Y" }
+      }, { responsive: true });
+
+      Plotly.newPlot("plotResidualFitted", [
+        {
+          x: state.result.fittedOriginal,
+          y: state.result.residualsOriginal,
+          mode: "markers",
+          type: "scatter",
+          name: "Qoldiqlar"
+        },
+        {
+          x: [Math.min(...state.result.fittedOriginal), Math.max(...state.result.fittedOriginal)],
+          y: [0, 0],
+          mode: "lines",
+          type: "scatter",
+          name: "Nol chiziq"
+        }
+      ], {
+        ...commonLayout,
+        title: "Qoldiq va bashorat qilingan qiymatlar",
+        xaxis: { ...commonLayout.xaxis, title: "Bashorat qilingan qiymatlar" },
+        yaxis: { ...commonLayout.yaxis, title: "Qoldiq" }
+      }, { responsive: true });
+
+      Plotly.newPlot("plotResidualHist", [
+        {
+          x: state.result.residualsOriginal,
+          type: "histogram",
+          name: "Qoldiq taqsimoti"
+        }
+      ], {
+        ...commonLayout,
+        title: "Qoldiqlar gistogrammasi",
+        xaxis: { ...commonLayout.xaxis, title: "Qoldiq" },
+        yaxis: { ...commonLayout.yaxis, title: "Takrorlanish soni" }
+      }, { responsive: true });
+
+      const keys = Object.keys(state.result.corrVars);
+      const z = keys.map(a => keys.map(b => corr(state.result.corrVars[a], state.result.corrVars[b])));
+
+      Plotly.newPlot("plotCorrelation", [{
+        z, x: keys, y: keys, type: "heatmap"
+      }], {
+        ...commonLayout,
+        title: "Korrelyatsiya issiqlik xaritasi"
+      }, { responsive: true });
+
+      Plotly.newPlot("plotQQ", [
+        {
+          x: state.result.qq.theoretical,
+          y: state.result.qq.sample,
+          mode: "markers",
+          type: "scatter",
+          name: "QQ nuqtalar"
+        }
+      ], {
+        ...commonLayout,
+        title: "QQ Plot",
+        xaxis: { ...commonLayout.xaxis, title: "Nazariy kvantillar" },
+        yaxis: { ...commonLayout.yaxis, title: "Qoldiq kvantillari" }
+      }, { responsive: true });
+
+      Plotly.newPlot("plotOutliers", [
+        {
+          x: state.result.outliers.map(o => o.index),
+          y: state.result.outliers.map(o => o.standardizedResidual),
+          mode: "markers",
+          type: "scatter",
+          name: "Standartlashgan qoldiqlar"
+        },
+        {
+          x: [1, state.result.outliers.length],
+          y: [2, 2],
+          mode: "lines",
+          type: "scatter",
+          name: "+2 chegara"
+        },
+        {
+          x: [1, state.result.outliers.length],
+          y: [-2, -2],
+          mode: "lines",
+          type: "scatter",
+          name: "-2 chegara"
+        }
+      ], {
+        ...commonLayout,
+        title: "Outlier nazorati",
+        xaxis: { ...commonLayout.xaxis, title: "Kuzatuv raqami" },
+        yaxis: { ...commonLayout.yaxis, title: "Standartlashgan qoldiq" }
+      }, { responsive: true });
+
+      const xPlots = document.getElementById("xPlots");
+      xPlots.innerHTML = "";
+
+      for (let i = 1; i <= state.result.k; i++) {
+        const div = document.createElement("div");
+        div.className = "graph-box";
+        const inner = document.createElement("div");
+        inner.id = "xPlot" + i;
+        inner.style.width = "100%";
+        inner.style.height = "340px";
+        div.appendChild(inner);
+        xPlots.appendChild(div);
+
+        const xVals = state.result.rawRows.map(r => r.xs[i - 1]);
+        const yVals = state.result.actualOriginal;
+
+        const pairs = xVals.map((x, idx) => ({ x, y: yVals[idx] })).sort((a, b) => a.x - b.x);
+        const sortedX = pairs.map(p => p.x);
+        const sortedY = pairs.map(p => p.y);
+
+        const rxy = corr(sortedX, sortedY);
+        const sx = math.std(sortedX) || 1;
+        const sy = math.std(sortedY) || 1;
+        const slope = rxy * (sy / sx);
+        const intercept = math.mean(sortedY) - slope * math.mean(sortedX);
+        const lineY = sortedX.map(x => intercept + slope * x);
+
+        Plotly.newPlot(inner.id, [
+          {
+            x: sortedX,
+            y: sortedY,
+            mode: "markers",
+            type: "scatter",
+            name: "Nuqtalar"
+          },
+          {
+            x: sortedX,
+            y: lineY,
+            mode: "lines",
+            type: "scatter",
+            name: "Trend chizig‘i"
+          }
+        ], {
+          ...commonLayout,
+          title: `${state.xNames[i - 1] || ("X" + i)} va Y o‘rtasidagi bog‘lanish`,
+          xaxis: { ...commonLayout.xaxis, title: state.xNames[i - 1] || ("X" + i) },
+          yaxis: { ...commonLayout.yaxis, title: state.yName || "Y" }
+        }, { responsive: true });
+      }
+    }
+
+    function runForecast() {
+      try {
+        if (!state.result) {
+          showStatus("Avval modelni hisoblang.", "err");
+          return;
+        }
+
+        const text = document.getElementById("forecastInput").value.trim();
+        if (!text) {
+          showStatus("Prognoz uchun qiymatlar kiriting.", "err");
+          return;
+        }
+
+        const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+        const rows = [];
+        const model = state.result.model;
+        const b = state.result.betaArr;
+
+        for (const line of lines) {
+          const parts = line.split(",").map(s => safeNumber(s.trim()));
+          if (parts.length !== state.xCount || parts.some(v => !Number.isFinite(v))) {
+            throw new Error(`Har bir qatorda aynan ${state.xCount} ta son bo‘lishi kerak.`);
+          }
+
+          const xTransformed = transformForecastXs(parts, model);
+          let yHat = b[0];
+          for (let i = 0; i < xTransformed.length; i++) yHat += b[i + 1] * xTransformed[i];
+
+          let yOriginal;
+          if (model === "linear" || model === "linlog") yOriginal = yHat;
+          else yOriginal = Math.exp(yHat);
+
+          rows.push({ xs: parts, y: yOriginal });
+        }
+
+        state.forecastRows = rows;
+        renderForecastTable();
+        showStatus("Prognoz muvaffaqiyatli bajarildi.");
+      } catch (err) {
+        showStatus("Prognoz xatolik: " + err.message, "err");
+      }
+    }
+
+    function fillSampleForecast() {
+      const lines = [];
+      for (let i = 0; i < 3; i++) {
+        const arr = [];
+        for (let j = 1; j <= state.xCount; j++) arr.push(10 + i + j);
+        lines.push(arr.join(", "));
+      }
+      document.getElementById("forecastInput").value = lines.join("\n");
+    }
+
+    function clearForecast() {
+      document.getElementById("forecastInput").value = "";
+      state.forecastRows = [];
+      renderForecastTable();
+    }
+
+    function renderAll() {
+      renderModelCompareTable();
+      renderSummary();
+      renderDiagnostics();
+      renderEquation();
+      renderRegStatsTable();
+      renderAnovaTable();
+      renderCoefTable();
+      renderElasticityTable();
+      renderPredictionTable();
+      renderNormalityTable();
+      renderHeteroTable();
+      renderOutlierTable();
+      renderForecastTable();
+      renderPlots();
+    }
+
+    function clearOutputs() {
+      document.getElementById("modelCompareTable").innerHTML = "";
+      document.getElementById("summaryCards").innerHTML = "";
+      document.getElementById("diagnosticCards").innerHTML = "";
+      document.getElementById("regStatsTable").innerHTML = "";
+      document.getElementById("anovaTable").innerHTML = "";
+      document.getElementById("coefTable").innerHTML = "";
+      document.getElementById("elasticityTable").innerHTML = "";
+      document.getElementById("predictionTable").innerHTML = "";
+      document.getElementById("normalityTable").innerHTML = "";
+      document.getElementById("heteroTable").innerHTML = "";
+      document.getElementById("outlierTable").innerHTML = "";
+      document.getElementById("forecastTable").innerHTML = "";
+      document.getElementById("finalEquation").textContent = "Hisoblashdan keyin tenglama shu yerda chiqadi.";
+      document.getElementById("xPlots").innerHTML = "";
+      ["plotActualPredicted", "plotResidualFitted", "plotResidualHist", "plotCorrelation", "plotQQ", "plotOutliers"].forEach(id => {
+        document.getElementById(id).innerHTML = "";
+      });
+      renderLegendOnly();
+    }
+
+    function exportCSV() {
+      let lines = [];
+      const header = ["Y", ...Array.from({ length: state.xCount }, (_, i) => "X" + (i + 1))];
+      const names = [state.yName, ...state.xNames];
+
+      lines.push(header.join(","));
+      lines.push(names.map(v => `"${String(v).replaceAll('"', '""')}"`).join(","));
+
+      state.data.forEach(row => {
+        const arr = [row.Y];
+        for (let i = 1; i <= state.xCount; i++) arr.push(row["X" + i]);
+        lines.push(arr.join(","));
+      });
+
+      if (state.modelCompare.length) {
+        lines.push("");
+        lines.push("=== Model Compare ===");
+        lines.push("Model,Adjusted R2,R2,F,Prob(F),Standard Error");
+        state.modelCompare.filter(r => r.ok).forEach(r => {
+          lines.push([r.label, r.adjR2, r.r2, r.f, r.pf, r.rmse].join(","));
+        });
+      }
+
+      if (state.result) {
+        lines.push("");
+        lines.push("=== Regression Statistics ===");
+        lines.push(`Multiple R,${state.result.regressionStats.multipleR}`);
+        lines.push(`R Square,${state.result.regressionStats.rSquare}`);
+        lines.push(`Adjusted R Square,${state.result.regressionStats.adjustedRSquare}`);
+        lines.push(`Standard Error,${state.result.regressionStats.standardError}`);
+        lines.push(`Observations,${state.result.regressionStats.observations}`);
+
+        lines.push("");
+        lines.push("=== ANOVA ===");
+        lines.push("Source,df,SS,MS,F,Significance F");
+        lines.push(`Regression,${state.result.anova.regression.df},${state.result.anova.regression.ss},${state.result.anova.regression.ms},${state.result.anova.regression.f},${state.result.anova.regression.significanceF}`);
+        lines.push(`Residual,${state.result.anova.residual.df},${state.result.anova.residual.ss},${state.result.anova.residual.ms},,`);
+        lines.push(`Total,${state.result.anova.total.df},${state.result.anova.total.ss},,,`);
+
+        lines.push("");
+        lines.push("=== Coefficients ===");
+        lines.push("Kod,Nomi,Koeffitsiyent,Standart xatolik,t-statistika,p-qiymat,Pastki 95%,Yuqori 95%,VIF");
+        state.result.coefRows.forEach(r => {
+          lines.push([r.code, `"${String(r.name).replaceAll('"', '""')}"`, r.coef, r.se, r.t, r.p, r.low, r.high, r.vif ?? ""].join(","));
+        });
+
+        if (state.forecastRows.length) {
+          lines.push("");
+          lines.push("=== Forecast ===");
+          lines.push([...Array.from({ length: state.xCount }, (_, i) => "X" + (i + 1)), "Forecast Y"].join(","));
+          state.forecastRows.forEach(r => lines.push([...r.xs, r.y].join(",")));
+        }
+      }
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "malumot_tahlili_pro_8.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function exportXLSX() {
+      const wb = XLSX.utils.book_new();
+
+      const rawData = [];
+      rawData.push(["Y", ...Array.from({ length: state.xCount }, (_, i) => "X" + (i + 1))]);
+      rawData.push([state.yName, ...state.xNames]);
+      state.data.forEach(row => {
+        rawData.push([row.Y, ...Array.from({ length: state.xCount }, (_, i) => row["X" + (i + 1)])]);
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rawData), "Data");
+
+      if (state.modelCompare.length) {
+        const compareData = [["Model", "Adjusted R2", "R2", "F", "Prob(F)", "Standard Error"]];
+        state.modelCompare.filter(r => r.ok).forEach(r => compareData.push([r.label, r.adjR2, r.r2, r.f, r.pf, r.rmse]));
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(compareData), "Model Compare");
+      }
+
+      if (state.result) {
+        const rs = state.result.regressionStats;
+        const an = state.result.anova;
+
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+          ["Regression Statistics"],
+          ["Multiple R", rs.multipleR],
+          ["R Square", rs.rSquare],
+          ["Adjusted R Square", rs.adjustedRSquare],
+          ["Standard Error", rs.standardError],
+          ["Observations", rs.observations]
+        ]), "Regression Stats");
+
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+          ["ANOVA"],
+          ["Source", "df", "SS", "MS", "F", "Significance F"],
+          ["Regression", an.regression.df, an.regression.ss, an.regression.ms, an.regression.f, an.regression.significanceF],
+          ["Residual", an.residual.df, an.residual.ss, an.residual.ms, "", ""],
+          ["Total", an.total.df, an.total.ss, "", "", ""]
+        ]), "ANOVA");
+
+        const coefData = [["Kod", "Nomi", "Koeffitsiyent", "Standart xatolik", "t-statistika", "p-qiymat", "Pastki 95%", "Yuqori 95%", "VIF"]];
+        state.result.coefRows.forEach(r => coefData.push([r.code, r.name, r.coef, r.se, r.t, r.p, r.low, r.high, r.vif ?? ""]));
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(coefData), "Coefficients");
+
+        if (state.forecastRows.length) {
+          const forecastData = [[...Array.from({ length: state.xCount }, (_, i) => "X" + (i + 1)), "Forecast Y"]];
+          state.forecastRows.forEach(r => forecastData.push([...r.xs, r.y]));
+          XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(forecastData), "Forecast");
+        }
+      }
+
+      XLSX.writeFile(wb, "malumot_tahlili_pro_8.xlsx");
+    }
+
+    function importCSV(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const text = e.target.result.trim();
+          const rows = text.split(/\r?\n/).map(line => line.split(","));
+          if (rows.length < 3) throw new Error("CSV fayl juda qisqa.");
+
+          const header = rows[0].map(x => x.trim());
+          if (header[0].toUpperCase() !== "Y") throw new Error("Birinchi ustun Y bo‘lishi kerak.");
+
+          state.xCount = header.length - 1;
+          state.xNames = Array.from({ length: state.xCount }, (_, i) => `X${i+1} nomi`);
+
+          const names = rows[1];
+          state.yName = (names[0] || "Y natija").replace(/^"|"$/g, "");
+          for (let i = 1; i <= state.xCount; i++) {
+            state.xNames[i - 1] = (names[i] || `X${i}`).replace(/^"|"$/g, "");
+          }
+
+          const body = rows.slice(2).filter(r => r.length >= header.length);
+          state.rows = body.length;
+          state.data = body.map(r => {
+            const obj = { Y: r[0] ?? "" };
+            for (let i = 1; i <= state.xCount; i++) obj["X" + i] = r[i] ?? "";
+            return obj;
+          });
+
+          renderTable();
+          showStatus("CSV muvaffaqiyatli yuklandi.");
+        } catch (err) {
+          showStatus("CSV xatolik: " + err.message, "err");
+        }
+      };
+      reader.readAsText(file, "UTF-8");
+    }
+
+    function importXLSX(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false });
+
+          if (rows.length < 3) throw new Error("Excel fayl juda qisqa.");
+
+          const header = rows[0].map(v => String(v).trim());
+          if (String(header[0]).toUpperCase() !== "Y") throw new Error("Excel fayl birinchi ustuni Y bo‘lishi kerak.");
+
+          state.xCount = header.length - 1;
+          state.xNames = Array.from({ length: state.xCount }, (_, i) => `X${i + 1} nomi`);
+
+          const names = rows[1];
+          state.yName = String(names[0] ?? "Y natija");
+          for (let i = 1; i <= state.xCount; i++) state.xNames[i - 1] = String(names[i] ?? `X${i}`);
+
+          const body = rows.slice(2).filter(r => r.length >= header.length);
+          state.rows = body.length;
+          state.data = body.map(r => {
+            const obj = { Y: r[0] ?? "" };
+            for (let i = 1; i <= state.xCount; i++) obj["X" + i] = r[i] ?? "";
+            return obj;
+          });
+
+          renderTable();
+          showStatus("Excel muvaffaqiyatli yuklandi.");
+        } catch (err) {
+          showStatus("Excel xatolik: " + err.message, "err");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    document.getElementById("themeBtn").addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      if (state.result) renderPlots();
+    });
+
+    document.getElementById("sampleBtn").addEventListener("click", fillSample);
+    document.getElementById("addXBtn").addEventListener("click", addX);
+    document.getElementById("removeLastXBtn").addEventListener("click", removeLastX);
+    document.getElementById("addRowBtn").addEventListener("click", addRow);
+    document.getElementById("removeLastRowBtn").addEventListener("click", removeLastRow);
+    document.getElementById("clearBtn").addEventListener("click", clearAll);
+    document.getElementById("analyzeBtn").addEventListener("click", analyzeSelected);
+    document.getElementById("autoModelBtn").addEventListener("click", autoChooseBestModel);
+    document.getElementById("exportCsvBtn").addEventListener("click", exportCSV);
+    document.getElementById("exportXlsxBtn").addEventListener("click", exportXLSX);
+    document.getElementById("modelType").addEventListener("change", updateEquationPreview);
+    document.getElementById("runForecastBtn").addEventListener("click", runForecast);
+    document.getElementById("sampleForecastBtn").addEventListener("click", fillSampleForecast);
+    document.getElementById("clearForecastBtn").addEventListener("click", clearForecast);
+
+    document.getElementById("csvFile").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (file) importCSV(file);
+    });
+
+    document.getElementById("xlsxFile").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (file) importXLSX(file);
+    });
+
+    function fillSampleForecast() {
+      const lines = [];
+      for (let i = 0; i < 3; i++) {
+        const arr = [];
+        for (let j = 1; j <= state.xCount; j++) arr.push(10 + i + j);
+        lines.push(arr.join(", "));
+      }
+      document.getElementById("forecastInput").value = lines.join("\n");
+    }
+
+    function init() {
+      createEmptyData();
+      renderTable();
+      renderLegendOnly();
+      updateEquationPreview();
+    }
+
+    init();
+  </script>
 </body>
 </html>
